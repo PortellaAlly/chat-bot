@@ -1,22 +1,38 @@
 from openai import OpenAI
 import os
+from dotenv import load_dotenv
 
-client = OpenAI(api_key="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")
+load_dotenv()
 
-def chat_with_gpt(prompt):
+client = OpenAI(
+    api_key=os.getenv("GROQ_API_KEY"), 
+    base_url="https://api.groq.com/openai/v1"
+)
+
+def chat_with_ai(prompt):
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}]
+        model="llama-3.3-70b-versatile", 
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7,
+        max_tokens=1024
     )
-
+    
     return response.choices[0].message.content.strip()
 
 if __name__ == "__main__":
+    print("Digite 'sair' para encerrar\n")
+    
     while True:
         user_input = input("Você: ")
         if user_input.lower() in ["sair", "exit", "quit", "tchau", "até mais"]:
             print("Encerrando o chat. Até mais!")
             break
-
-        response = chat_with_gpt(user_input)
-        print("ChatGPT: ", response)
+        
+        if not user_input.strip():
+            continue
+            
+        try:
+            response = chat_with_ai(user_input)
+            print(f"IA: {response}\n")
+        except Exception as e:
+            print(f"Erro: {e}\n")
